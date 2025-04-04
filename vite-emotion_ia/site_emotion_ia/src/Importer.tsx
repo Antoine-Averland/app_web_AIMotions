@@ -1,8 +1,47 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import logo from './assets/logo.png'
+import { Link } from 'react-router-dom';
+import logo from './assets/logo.png';
 
 const Importer: React.FC = () => {
+  const [recordedVideo, setRecordedVideo] = React.useState<string | null>(null);
+  const [localVideo, setLocalVideo] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const data = localStorage.getItem("temporaryRecordedVideo");
+    if (data) {
+      const { base64, timestamp } = JSON.parse(data);
+      const now = Date.now();
+      const fiveMinutes = 10 * 60 * 1000;
+
+      if (now - timestamp < fiveMinutes) {
+        setRecordedVideo(base64);
+      } else {
+        localStorage.removeItem("temporaryRecordedVideo");
+      }
+    }
+  }, []);
+
+  const handleLocalImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLocalVideo(reader.result as string);
+        setRecordedVideo(null); // On désactive la vidéo enregistrée si l’utilisateur en importe une
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAnalyse = () => {
+    const videoToAnalyse = localVideo || recordedVideo;
+    if (videoToAnalyse) {
+      // Appelle ici ton backend ou pipeline d’analyse
+      console.log("Vidéo envoyée pour analyse !");
+      // Tu peux faire un fetch/post ici si besoin
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-white overflow-y-auto">
       {/* Header */}
@@ -20,29 +59,52 @@ const Importer: React.FC = () => {
 
       {/* Main Content */}
       <main className="flex-grow px-6 py-8 overflow-y-auto">
-        {/* Introduction Section */}
         <section className="text-center mb-10">
           <h1 className="text-4xl font-bold text-custom-dark-blue mb-4 py-8">
             Import de vidéos
           </h1>
-          <div className="bg-custom-dark-blue mx-auto p-6 rounded-md w-1/2">
-            <p className="text-white-100 text-lg">
-                Sélectionnez une vidéo que nous allons analyser
-            </p>
-            <p className="text-white-100 text-lg">
-                Veillez à ce que la vidéo ne dépasse pas ...Mb.
-            </p>
+          <div className="bg-custom-dark-blue mx-auto p-6 rounded-md w-1/2 text-white-100 space-y-2">
+            <p className="text-lg">Sélectionnez une vidéo que nous allons analyser</p>
+            <p className="text-lg">Veillez à ce que la vidéo ne dépasse pas ...Mb.</p>
           </div>
-          <div className='pt-10'>
-          <button className="bg-gray-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-custom-dark-blue">importer une vidéo locale</button>
+
+          <div className="pt-10 space-y-6">
+            {recordedVideo && (
+              <div className="space-y-2">
+                <p className="text-custom-dark-blue font-semibold">Vidéo enregistrée disponible :</p>
+                <video src={recordedVideo} controls className="w-full max-w-xl mx-auto rounded-md shadow-md" />
+              </div>
+            )}
+
+            {localVideo && (
+              <div className="space-y-2">
+                <p className="text-custom-dark-blue font-semibold">Vidéo locale importée :</p>
+                <video src={localVideo} controls className="w-full max-w-xl mx-auto rounded-md shadow-md" />
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <p className="text-custom-dark-blue font-semibold">Importer une vidéo locale :</p>
+              <input type="file" accept="video/*" onChange={handleLocalImport} className="block mx-auto" />
+            </div>
+
+            {(recordedVideo || localVideo) && (
+              <div className="pt-6">
+                <button
+                  onClick={handleAnalyse}
+                  className="bg-green-600 text-white py-2 px-6 rounded-lg shadow-md hover:bg-green-700 transition"
+                >
+                  Analyser cette vidéo
+                </button>
+              </div>
+            )}
           </div>
         </section>
 
         {/* About Section */}
-        <section className="bg-custom-dark-blue p-6 rounded-md mx-auto w-1/2">
+        <section className="bg-custom-dark-blue p-6 rounded-md mx-auto w-1/2 mt-10">
           <p className="text-white">
-            Explications sur le fonctionnement de l'importer vidéo et
-            les spécifications techniques.
+            Explications sur le fonctionnement de l'import de vidéo et les spécifications techniques.
           </p>
         </section>
       </main>
