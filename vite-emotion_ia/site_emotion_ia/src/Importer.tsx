@@ -1,17 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import logo from './assets/logo.png';
 
 const Importer: React.FC = () => {
   const [recordedVideo, setRecordedVideo] = React.useState<string | null>(null);
   const [localVideo, setLocalVideo] = React.useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
+  const [analysisDone, setAnalysisDone] = React.useState(false);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     const data = localStorage.getItem("temporaryRecordedVideo");
     if (data) {
       const { base64, timestamp } = JSON.parse(data);
       const now = Date.now();
-      const fiveMinutes = 10 * 60 * 1000;
+      const fiveMinutes = 5 * 60 * 1000;
 
       if (now - timestamp < fiveMinutes) {
         setRecordedVideo(base64);
@@ -27,19 +30,43 @@ const Importer: React.FC = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setLocalVideo(reader.result as string);
-        setRecordedVideo(null); // On désactive la vidéo enregistrée si l’utilisateur en importe une
+        setRecordedVideo(null); // désactive la vidéo enregistrée si une locale est choisie
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleAnalyse = () => {
+  const handleAnalyse = async () => {
     const videoToAnalyse = localVideo || recordedVideo;
-    if (videoToAnalyse) {
-      // Appelle ici ton backend ou pipeline d’analyse
-      console.log("Vidéo envoyée pour analyse !");
-      // Tu peux faire un fetch/post ici si besoin
+    if (!videoToAnalyse) return;
+
+    setIsAnalyzing(true);
+    setAnalysisDone(false);
+
+    try {
+      const response = await fetch('http://localhost:5000/analyze', { //TODO url pour le backend à modifier
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ video: videoToAnalyse }),
+      });
+
+      if (response.ok) {
+        console.log('Analyse réussie');
+        setAnalysisDone(true);
+      } else {
+        console.error('Erreur lors de l\'analyse');
+      }
+    } catch (error) {
+      console.error('Erreur serveur :', error);
+    } finally {
+      setIsAnalyzing(false);
     }
+  };
+
+  const handleViewResults = () => {
+    navigate('/results');
   };
 
   return (
@@ -89,13 +116,25 @@ const Importer: React.FC = () => {
             </div>
 
             {(recordedVideo || localVideo) && (
-              <div className="pt-6">
+              <div className="pt-6 space-y-4">
                 <button
                   onClick={handleAnalyse}
-                  className="bg-green-600 text-white py-2 px-6 rounded-lg shadow-md hover:bg-green-700 transition"
+                  disabled={isAnalyzing}
+                  className={`py-2 px-6 rounded-lg shadow-md transition ${
+                    isAnalyzing ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white'
+                  }`}
                 >
-                  Analyser cette vidéo
+                  {isAnalyzing ? 'Analyse en cours...' : 'Analyser cette vidéo'}
                 </button>
+
+                {analysisDone && (
+                  <button
+                    onClick={handleViewResults}
+                    className="bg-blue-600 text-white py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition"
+                  >
+                    Voir les résultats
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -118,3 +157,4 @@ const Importer: React.FC = () => {
 };
 
 export default Importer;
+
