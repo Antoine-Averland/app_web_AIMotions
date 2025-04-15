@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Recorder from './Recorder';
 import Importer from './Importer';
 import Contacts from './Contacts';
+import Results from './Results';
 
 
 
@@ -29,7 +30,7 @@ const App: React.FC = () => {
                 <nav className="space-x-6">
                   <Link to="/recorder" className="text-white font-semibold hover:text-sky-500">Enregistreur</Link>
                   <Link to="/importer" className="text-white font-semibold hover:text-sky-500">Import de vidéos</Link>
-                  <a href="#results" className="text-white font-semibold hover:text-sky-500">Résultats de l'analyse</a>
+                  <Link to="/results" className="text-white font-semibold hover:text-sky-500">Résultats de l'analyse</Link>
                   <Link to="/contacts" className="text-white font-semibold hover:text-sky-500">Contacts</Link>
                 </nav>
               </header>
@@ -86,6 +87,7 @@ const App: React.FC = () => {
         {/* Page Enregistreur */}
         <Route path="/recorder" element={<Recorder />} />
         <Route path="/importer" element={<Importer />} />
+        <Route path="/results" element={<Results />} />
       </Routes>
     </Router>
   );
