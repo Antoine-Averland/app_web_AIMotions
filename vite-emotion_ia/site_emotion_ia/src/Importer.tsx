@@ -69,6 +69,13 @@ const Importer: React.FC = () => {
     navigate('/results');
   };
 
+  const getApiResult = async () => {
+    const response = await fetch("http://127.0.0.1:8000");
+    const resJson = await response.json();
+    console.log("response ->", response);
+    console.log("resJson ->", resJson);
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-white overflow-y-auto">
       {/* Header */}
@@ -137,6 +144,11 @@ const Importer: React.FC = () => {
                 )}
               </div>
             )}
+            <button
+              onClick={getApiResult}
+            >
+              Test
+            </button>
           </div>
         </section>
 
