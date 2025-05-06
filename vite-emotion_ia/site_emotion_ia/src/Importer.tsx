@@ -4,7 +4,8 @@ import logo from './assets/logo.png';
 
 const Importer: React.FC = () => {
   const [recordedVideo, setRecordedVideo] = React.useState<string | null>(null);
-  const [localVideo, setLocalVideo] = React.useState<string | null>(null);
+  const [localVideo, setLocalVideo] = React.useState<string>("");
+  const [localVideoFile, setLocalVideoFile] = React.useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
   const [analysisDone, setAnalysisDone] = React.useState(false);
   const navigate = useNavigate();
@@ -27,6 +28,8 @@ const Importer: React.FC = () => {
   const handleLocalImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setLocalVideoFile(file);
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setLocalVideo(reader.result as string);
@@ -70,10 +73,22 @@ const Importer: React.FC = () => {
   };
 
   const getApiResult = async () => {
-    const response = await fetch("http://127.0.0.1:8000");
-    const resJson = await response.json();
-    console.log("response ->", response);
-    console.log("resJson ->", resJson);
+    if (!localVideoFile) return;
+    
+    const formData = new FormData();
+    formData.append("file", localVideoFile);
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/video/upload-test", {
+        method: "POST",
+        body: formData
+      });
+      const resJson = await response.json();
+      // console.log("response ->", response);
+      // console.log("resJson ->", resJson);
+    } catch(error) {
+      console.error("error:", error);
+    }    
   }
 
   return (
