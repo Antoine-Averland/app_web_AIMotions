@@ -1,6 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import logo from './assets/logo.png';
+import Header from './components/layout/Header';
+import Footer from './components/layout/Footer';
 
 const Recorder: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -129,9 +131,7 @@ const Recorder: React.FC = () => {
         </section>
       </main>
 
-      <footer className="bg-custom-dark-blue py-4 text-left pl-8">
-        <a href="#about" className="text-white font-semibold hover:underline">À propos</a>
-      </footer>
+      <Footer />
     </div>
   );
 };
