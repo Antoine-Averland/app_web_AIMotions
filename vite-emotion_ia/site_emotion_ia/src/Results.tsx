@@ -3,6 +3,8 @@ import Papa from 'papaparse';
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
+import { Link } from 'react-router-dom';
+import logo from './assets/logo.png';
 
 // Définition d'un type pour chaque ligne de ton CSV
 type EmotionData = {
@@ -51,14 +53,23 @@ const Resultats: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white overflow-y-auto p-6">
+    <div className="flex flex-col min-h-screen bg-white overflow-y-auto">
       {/* Header */}
       <header className="flex justify-between items-center bg-custom-dark-blue px-6 py-4 border-b border-gray-300">
-        <h1 className="text-2xl text-white font-bold">Résultats de l'analyse</h1>
+        <Link to="/" className="flex items-center">
+          <img src={logo} alt="Logo" className="shadow-md w-16 h-auto cursor-pointer" />
+        </Link>
+        <nav className="space-x-6">
+          <Link to="/" className="text-white font-semibold hover:text-sky-500">Accueil</Link>
+          <Link to="/recorder" className="text-white font-semibold hover:text-sky-500">Enregistreur de vidéos</Link>
+          <Link to="/importer" className="text-white font-semibold hover:text-sky-500">Import de vidéos</Link>
+          <Link to="/results" className="text-white font-semibold hover:text-sky-500">Résultats de l'analyse</Link>
+          <Link to="/contacts" className="text-white font-semibold hover:text-sky-500">Contacts</Link>
+        </nav>
       </header>
 
       {/* Fichier et boutons */}
-      <div className="flex flex-col items-center my-8">
+      <div className="flex flex-col items-center my-8 w-full max-w-5xl mx-auto">
         <input type="file" accept=".csv" onChange={handleFileUpload} className="mb-6" />
         <div className="flex space-x-4">
           <button onClick={() => setView('bar')} className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-custom-dark-blue">
@@ -133,6 +144,9 @@ const Resultats: React.FC = () => {
           </ResponsiveContainer>
         )}
       </div>
+      <footer className="bg-custom-dark-blue py-4 text-left pl-8">
+        <a href="#about" className="text-white font-semibold hover:underline">À propos</a>
+      </footer>
     </div>
   );
 };

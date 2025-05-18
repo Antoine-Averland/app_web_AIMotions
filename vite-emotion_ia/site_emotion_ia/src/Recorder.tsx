@@ -64,7 +64,7 @@ const Recorder: React.FC = () => {
         <nav className="space-x-6">
           <a href="/" className="text-white font-semibold hover:text-sky-500">Accueil</a>
           <a href="/importer" className="text-white font-semibold hover:text-sky-500">Import de vidéos</a>
-          <a href="#results" className="text-white font-semibold hover:text-sky-500">Résultats de l'analyse</a>
+          <a href="/results" className="text-white font-semibold hover:text-sky-500">Résultats de l'analyse</a>
           <a href="#contacts" className="text-white font-semibold hover:text-sky-500">Contacts</a>
         </nav>
       </header>
