@@ -18,7 +18,7 @@ const Importer: React.FC = () => {
   const [localVideoFile, setLocalVideoFile] = React.useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
   const [analysisDone, setAnalysisDone] = React.useState(false);
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const domainsList = Object.keys(questions);
 
