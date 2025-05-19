@@ -18,6 +18,7 @@ const Importer: React.FC = () => {
   const [localVideoFile, setLocalVideoFile] = React.useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
   const [analysisDone, setAnalysisDone] = React.useState(false);
+  const [resAnalyse, setResAnalyse] = React.useState<any>(null);
   const navigate = useNavigate();
 
   const domainsList = Object.keys(questions);
@@ -55,37 +56,12 @@ const Importer: React.FC = () => {
     }
   };
 
-  const handleAnalyse = async () => {
-    const videoToAnalyse = localVideo || recordedVideo;
-    if (!videoToAnalyse) return;
-
-    setIsAnalyzing(true);
-    setAnalysisDone(false);
-
-    try {
-      const response = await fetch('http://localhost:5000/analyze', { //TODO url pour le backend à modifier
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ video: videoToAnalyse }),
-      });
-
-      if (response.ok) {
-        console.log('Analyse réussie');
-        setAnalysisDone(true);
-      } else {
-        console.error('Erreur lors de l\'analyse');
-      }
-    } catch (error) {
-      console.error('Erreur serveur :', error);
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
   const handleViewResults = () => {
-    navigate('/results');
+    navigate('/results', {
+      state: {
+        resAnalyse: resAnalyse,
+      },
+    });
   };
 
   const handleSelectDomain = (val: string) => {
@@ -102,9 +78,13 @@ const Importer: React.FC = () => {
     }
   }
 
-  const getApiResult = async () => {
-    if (!localVideoFile) return;
+  const handleAnalyzeVideoResult = async () => {
+    console.log("Click, envoi de la vidéo");
     
+    if (!localVideoFile) { 
+      console.log("Pas de vidéo à envoyer");
+      return;
+    }
     const formData = new FormData();
     formData.append("file", localVideoFile);
 
@@ -113,9 +93,17 @@ const Importer: React.FC = () => {
         method: "POST",
         body: formData
       });
-      const resJson = await response.json();
       // console.log("response ->", response);
-      // console.log("resJson ->", resJson);
+      if (!response.ok) {
+        console.error("Erreur lors de l'envoi de la vidéo");
+        return;
+      }
+      
+      const resText = await response.text();
+      if (resText) {
+        setResAnalyse(resText);
+        setAnalysisDone(true);
+      };
     } catch(error) {
       console.error("error:", error);
     }    
@@ -181,7 +169,7 @@ const Importer: React.FC = () => {
                 {(recordedVideo || localVideo) && (
                   <div className="pt-6 space-y-4">
                     <button
-                      onClick={handleAnalyse}
+                      onClick={handleAnalyzeVideoResult}
                       disabled={isAnalyzing}
                       className={`py-2 px-6 rounded-lg shadow-md transition ${
                         isAnalyzing ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white'
@@ -200,11 +188,6 @@ const Importer: React.FC = () => {
                     )}
                   </div>
                 )}
-                <button
-                  onClick={getApiResult}
-                >
-                  Test
-                </button>
               </div>
             </>
           )}

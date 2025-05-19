@@ -3,6 +3,7 @@ import Papa from 'papaparse';
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
+import { useLocation } from 'react-router-dom';
 
 // Définition d'un type pour chaque ligne de ton CSV
 type EmotionData = {
@@ -22,7 +23,10 @@ const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#d0ed57', '#a4de6c'
 const Resultats: React.FC = () => {
   const [data, setData] = useState<EmotionData[]>([]);
   const [view, setView] = useState<'bar' | 'line' | 'pie'>('bar');
-
+  const location = useLocation();
+  const { resAnalyse } = location.state || {};
+  console.log("resAnalyse", resAnalyse);
+  
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
