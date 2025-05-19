@@ -6,8 +6,9 @@ import {
 } from 'recharts';
 import { Link } from 'react-router-dom';
 import logo from './assets/logo.png';
-import type { Payload } from 'recharts';
+// import type { Payload } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 
 // Type des données
 type EmotionData = {
@@ -27,7 +28,10 @@ const Resultats: React.FC = () => {
   const [data, setData] = useState<EmotionData[]>([]);
   const [view, setView] = useState<'bar' | 'line' | 'pie'>('bar');
   const [highlightedEmotion, setHighlightedEmotion] = useState<string | null>(null);
-
+  const location = useLocation();
+  const { resAnalyse } = location.state || {};
+  console.log("resAnalyse", resAnalyse);
+  
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -52,7 +56,8 @@ const Resultats: React.FC = () => {
     });
   };
 
-  const handleLegendClick = (e: Payload) => {
+  // const handleLegendClick = (e: Payload) => {
+  const handleLegendClick = (e: any) => {
     const key = e.dataKey as string;
     setHighlightedEmotion((prev) => (prev === key ? null : key));
   };
