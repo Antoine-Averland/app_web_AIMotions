@@ -1,6 +1,6 @@
 import React from 'react';
 import ia_example from './assets/ia_exemple.png';
-import logo from './assets/logo.png';
+import logo from './assets/logo_sans_fond.png';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Recorder from './Recorder';
 import Importer from './Importer';

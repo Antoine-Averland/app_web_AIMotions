@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import { Link } from 'react-router-dom';
-import logo from './assets/logo.png';
+import { Link, useLocation } from 'react-router-dom';
+import logo from './assets/logo_sans_fond.png';
 // import type { Payload } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
 
 // Type des données
 type EmotionData = {
@@ -31,29 +30,59 @@ const Resultats: React.FC = () => {
   const location = useLocation();
   const { resAnalyse } = location.state || {};
   console.log("resAnalyse", resAnalyse);
+
+  useEffect(() => {
+    if (resAnalyse && typeof resAnalyse === 'string') {
+      Papa.parse(resAnalyse, {
+        header: true,
+        skipEmptyLines: true,
+        dynamicTyping: true,
+        complete: (results) => {
+          const parsed = (results.data as Partial<Record<string, number>>[]).map((row) => ({
+            second: row.second ?? row.seconde ?? 0,
+            surprise: row.surprise ?? 0,
+            joy: row.joy ?? row.joie ?? 0,
+            anger: row.anger ?? row.colere ?? 0,
+            fear: row.fear ?? row.peur ?? 0,
+            neutral: row.neutral ?? row.neutre ?? 0,
+            sadness: row.sadness ?? row.triste ?? 0,
+            disgust: row.disgust ?? row.degout ?? 0,
+          }));
+          setData(parsed);
+        },
+      });
+    }
+  }, [resAnalyse]);
   
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      dynamicTyping: true,
-      complete: (results) => {
-        const parsed = (results.data as Partial<Record<string, number>>[]).map((row) => ({
-          second: row.second ?? row.seconde ?? 0,
-          surprise: row.surprise ?? 0,
-          joy: row.joy ?? row.joie ?? 0,
-          anger: row.anger ?? row.colere ?? 0,
-          fear: row.fear ?? row.peur ?? 0,
-          neutral: row.neutral ?? row.neutre ?? 0,
-          sadness: row.sadness ?? row.triste ?? 0,
-          disgust: row.disgust ?? row.degout ?? 0,
-        }));
-        setData(parsed);
-      },
-    });
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result;
+      if (typeof text === 'string') {
+        Papa.parse(text, {
+          header: true,
+          skipEmptyLines: true,
+          dynamicTyping: true,
+          complete: (results) => {
+            const parsed = (results.data as Partial<Record<string, number>>[]).map((row) => ({
+              second: row.second ?? row.seconde ?? 0,
+              surprise: row.surprise ?? 0,
+              joy: row.joy ?? row.joie ?? 0,
+              anger: row.anger ?? row.colere ?? 0,
+              fear: row.fear ?? row.peur ?? 0,
+              neutral: row.neutral ?? row.neutre ?? 0,
+              sadness: row.sadness ?? row.triste ?? 0,
+              disgust: row.disgust ?? row.degout ?? 0,
+            }));
+            setData(parsed);
+          },
+        });
+      }
+    };
+    reader.readAsText(file);
   };
 
   // const handleLegendClick = (e: Payload) => {
@@ -103,9 +132,11 @@ const Resultats: React.FC = () => {
           <input type="file" accept=".csv" onChange={handleFileUpload} className="hidden" />
         </label>
 
-        {data.length === 0 ? (
+        {data.length === 0 && !resAnalyse && (
           <p className="text-custom-dark-blue font-medium text-center">Veuillez importer un fichier CSV pour afficher les résultats.</p>
-        ) : (
+        )}
+
+        {data.length > 0 && (
           <div className="flex space-x-4 mt-4">
             <button onClick={() => setView('bar')} className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-custom-dark-blue">Vue Barres</button>
             <button onClick={() => setView('line')} className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-custom-dark-blue">Vue Courbe</button>

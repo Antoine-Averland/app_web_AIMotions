@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import logo from '../../assets/logo.png'; // Adjust the path to your logo file
+import logo from '../../assets/logo_sans_fond.png'; // Adjust the path to your logo file
 
 const Header: React.FC = () => {
     return (
