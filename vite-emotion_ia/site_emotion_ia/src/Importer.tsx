@@ -89,9 +89,10 @@ const Importer: React.FC = () => {
     formData.append("file", localVideoFile);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/video/upload-test", {
+      const response = await fetch("http://localhost:8000/video/upload-document", {
         method: "POST",
-        body: formData
+        body: formData,
+        credentials: "include"
       });
       // console.log("response ->", response);
       if (!response.ok) {
@@ -108,6 +109,46 @@ const Importer: React.FC = () => {
       console.error("error:", error);
     }    
   }
+
+  const getCsvFile = async () => {
+    const documentId = document.cookie
+      .split("; ")
+      .find(row => row.startsWith("document_id="))
+      ?.split("=")[1];
+  
+    if (!documentId) {
+      console.error("Aucun cookie document_id trouvé");
+      return;
+    }
+  
+    try {
+      const response = await fetch(`http://localhost:8000/video/get-document/csv/${documentId}`, {
+        method: "GET",
+        credentials: "include"
+      });
+  
+      const resJson = await response.json();
+      const csvUrl = resJson.csv_url;
+  
+      const csvResponse = await fetch(csvUrl);
+      const csvText = await csvResponse.text();
+  
+      const blob = new Blob([csvText], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+  
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `resultat_${documentId}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+  
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Erreur lors du téléchargement du CSV :", err);
+    }
+  };
+  
 
   return (
     <div className="flex flex-col min-h-screen bg-white overflow-y-auto">
@@ -167,7 +208,7 @@ const Importer: React.FC = () => {
                 </div>
 
                 {(recordedVideo || localVideo) && (
-                  <div className="pt-6 space-y-4">
+                  <div className="flex justify-center items-center gap-4">
                     <button
                       onClick={handleAnalyzeVideoResult}
                       disabled={isAnalyzing}
@@ -179,12 +220,20 @@ const Importer: React.FC = () => {
                     </button>
 
                     {analysisDone && (
-                      <button
-                        onClick={handleViewResults}
-                        className="bg-blue-600 text-white py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition"
-                      >
-                        Voir les résultats
-                      </button>
+                      <>
+                        <button
+                          onClick={handleViewResults}
+                          className="bg-blue-600 text-white py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition"
+                          >
+                          Voir les résultats
+                        </button>
+                        <button
+                          onClick={getCsvFile}
+                          className="bg-blue-600 text-white py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition"
+                          >
+                          Télécharger le fichier CSV
+                        </button>
+                      </>
                     )}
                   </div>
                 )}
