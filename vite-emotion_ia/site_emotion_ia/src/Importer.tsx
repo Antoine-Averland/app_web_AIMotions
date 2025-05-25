@@ -10,6 +10,9 @@ import Button from './components/Button';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 
+// Services
+import { downloadFileFromSupabase } from './services/supabase.service';
+
 const Importer: React.FC = () => {
   const [selectedDomain, setSelectedDomain] = React.useState<string>("");
   const [selectedRandomQuestion, setSelectedRandomQuestion] = React.useState<string>("");
@@ -111,43 +114,19 @@ const Importer: React.FC = () => {
   }
 
   const getCsvFile = async () => {
-    const documentId = document.cookie
-      .split("; ")
-      .find(row => row.startsWith("document_id="))
-      ?.split("=")[1];
-  
-    if (!documentId) {
-      console.error("Aucun cookie document_id trouvé");
-      return;
-    }
-  
-    try {
-      const response = await fetch(`http://localhost:8000/video/get-document/csv/${documentId}`, {
-        method: "GET",
-        credentials: "include"
-      });
-  
-      const resJson = await response.json();
-      const csvUrl = resJson.csv_url;
-  
-      const csvResponse = await fetch(csvUrl);
-      const csvText = await csvResponse.text();
-  
-      const blob = new Blob([csvText], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-  
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `resultat_${documentId}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-  
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("Erreur lors du téléchargement du CSV :", err);
-    }
+    downloadFileFromSupabase({
+      type: "csv",
+      filenamePrefix: "resultat"
+    });
   };
+
+  const getVideoAnalyzed = async () => {
+    downloadFileFromSupabase({
+      type: "video",
+      suffix: "_analyzed",
+      filenamePrefix: "resultat"
+    });
+  }
   
 
   return (
@@ -232,6 +211,12 @@ const Importer: React.FC = () => {
                           className="bg-blue-600 text-white py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition"
                           >
                           Télécharger le fichier CSV
+                        </button>
+                        <button
+                          onClick={getVideoAnalyzed}
+                          className="bg-blue-600 text-white py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition"
+                          >
+                          Télécharger la vidéo analysée
                         </button>
                       </>
                     )}
