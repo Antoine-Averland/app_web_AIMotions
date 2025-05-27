@@ -9,6 +9,7 @@ import SelectInput from './components/FormInput';
 import Button from './components/Button';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
+import Loader from './components/layout/Loader';
 
 // Services
 import { downloadFileFromSupabase } from './services/supabase.service';
@@ -92,7 +93,8 @@ const Importer: React.FC = () => {
     formData.append("file", localVideoFile);
 
     try {
-      const response = await fetch("http://localhost:8000/video/upload-document", {
+      setIsAnalyzing(true);
+      const response = await fetch("http://localhost:8000/document/upload-document", {
         method: "POST",
         body: formData,
         credentials: "include"
@@ -110,7 +112,9 @@ const Importer: React.FC = () => {
       };
     } catch(error) {
       console.error("error:", error);
-    }    
+    } finally {
+      setIsAnalyzing(false);
+    }
   }
 
   const getCsvFile = async () => {
@@ -128,6 +132,7 @@ const Importer: React.FC = () => {
     });
   }
   
+  if (isAnalyzing) return <Loader message="Analyse en cours..." />;
 
   return (
     <div className="flex flex-col min-h-screen bg-white overflow-y-auto">

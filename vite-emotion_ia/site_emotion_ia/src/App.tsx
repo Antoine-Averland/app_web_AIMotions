@@ -4,11 +4,7 @@ import logo from './assets/logo_sans_fond.png';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Recorder from './Recorder';
 import Importer from './Importer';
-import Contacts from './Contacts';
 import Results from './Results';
-
-
-
 import './App.css';
 
 const App: React.FC = () => {
@@ -41,7 +37,7 @@ const App: React.FC = () => {
                 <section className="text-center mb-10">
                   <h1 className="text-4xl font-bold text-custom-dark-blue mb-4 py-8">Analyse des émotions faciales à partir de vidéos pré-enregistrées</h1>
                   <div className="bg-custom-dark-blue mx-auto p-6 rounded-md w-1/2">
-                    <p className="text-white-100 text-lg">
+                    <p className="text-white text-lg">
                       Enregistrez ou importez les vidéos de votre choix, et notre IA de détection des émotions
                       vous donnera les résultats, desquels nous sortirons une analyse pour vous.
                     </p>
