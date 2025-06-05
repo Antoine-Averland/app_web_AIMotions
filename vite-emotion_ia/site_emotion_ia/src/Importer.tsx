@@ -83,14 +83,24 @@ const Importer: React.FC = () => {
   }
 
   const handleAnalyzeVideoResult = async () => {
-    console.log("Click, envoi de la vidéo");
-    
-    if (!localVideoFile) { 
+    const formData = new FormData();
+
+    if (localVideoFile) {
+      formData.append("file", localVideoFile);
+    } else if (recordedVideo) {
+      const base64Data = recordedVideo.split(',')[1]; // supprime le "data:video/webm;base64,"
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'video/webm' }); // ou 'video/mp4' si applicable
+      formData.append("file", blob, "recorded.webm");
+    } else {
       console.log("Pas de vidéo à envoyer");
       return;
     }
-    const formData = new FormData();
-    formData.append("file", localVideoFile);
 
     try {
       setIsAnalyzing(true);
@@ -99,23 +109,24 @@ const Importer: React.FC = () => {
         body: formData,
         credentials: "include"
       });
-      // console.log("response ->", response);
+
       if (!response.ok) {
         console.error("Erreur lors de l'envoi de la vidéo");
         return;
       }
-      
+
       const resText = await response.text();
       if (resText) {
         setResAnalyse(resText);
         setAnalysisDone(true);
-      };
-    } catch(error) {
+      }
+    } catch (error) {
       console.error("error:", error);
     } finally {
       setIsAnalyzing(false);
     }
-  }
+  };
+
 
   const getCsvFile = async () => {
     downloadFileFromSupabase({
