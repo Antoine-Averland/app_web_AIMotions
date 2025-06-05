@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 // Data
 import { questions, getRandomQuestionByDomaine } from "./data/question.data";
@@ -138,7 +138,6 @@ const Importer: React.FC = () => {
   const getVideoAnalyzed = async () => {
     downloadFileFromSupabase({
       type: "video",
-      suffix: "_analyzed",
       filenamePrefix: "resultat"
     });
   }
